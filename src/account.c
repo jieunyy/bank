@@ -86,11 +86,11 @@ void openAccount(MYSQL *conn) {
 
 // 계좌 삭제 함수
 void deleteAccount(MYSQL *conn) {
-    int accountID;
+    int accountNumber;
     
     printf("\n--- 계좌 삭제 ---\n");
     printf("삭제할 계좌 ID를 입력하세요: ");
-    if (scanf("%d", &accountID) != 1) {
+    if (scanf("%d", &accountNumber) != 1) {
         printf("잘못된 입력입니다.\n");
         clearInputBuffer();
         return;
@@ -99,7 +99,7 @@ void deleteAccount(MYSQL *conn) {
     
     // 계좌 존재 여부 확인
     char checkQuery[256];
-    snprintf(checkQuery, sizeof(checkQuery), "SELECT COUNT(*) FROM Account WHERE AccountID = %d", accountID);
+    snprintf(checkQuery, sizeof(checkQuery), "SELECT COUNT(*) FROM Account WHERE AccountNumber = %d", accountNumber);
     
     if (mysql_query(conn, checkQuery)) {
         fprintf(stderr, "계좌 존재 확인 쿼리 실패: %s\n", mysql_error(conn));
@@ -117,7 +117,7 @@ void deleteAccount(MYSQL *conn) {
     mysql_free_result(res);
     
     if (count == 0) {
-        printf("계좌 ID %d는 존재하지 않습니다.\n", accountID);
+        printf("계좌 ID %d는 존재하지 않습니다.\n", accountNumber);
         return;
     }
     
@@ -128,7 +128,7 @@ void deleteAccount(MYSQL *conn) {
         return;
     }
     
-    const char *deleteQuery = "DELETE FROM Account WHERE AccountID = ?";
+    const char *deleteQuery = "DELETE FROM Account WHERE AccountNumber = ?";
     if (mysql_stmt_prepare(stmt, deleteQuery, strlen(deleteQuery))) {
         fprintf(stderr, "mysql_stmt_prepare() 실패: %s\n", mysql_stmt_error(stmt));
         mysql_stmt_close(stmt);
@@ -141,7 +141,7 @@ void deleteAccount(MYSQL *conn) {
     
     // 계좌 ID 바인딩
     bind[0].buffer_type = MYSQL_TYPE_LONG;
-    bind[0].buffer = &accountID;
+    bind[0].buffer = &accountNumber;
     
     if (mysql_stmt_bind_param(stmt, bind)) {
         fprintf(stderr, "mysql_stmt_bind_param() 실패: %s\n", mysql_stmt_error(stmt));
@@ -153,7 +153,7 @@ void deleteAccount(MYSQL *conn) {
     if (mysql_stmt_execute(stmt)) {
         fprintf(stderr, "mysql_stmt_execute() 실패: %s\n", mysql_stmt_error(stmt));
     } else {
-        printf("계좌 ID %d가 성공적으로 삭제되었습니다.\n", accountID);
+        printf("계좌 ID %d가 성공적으로 삭제되었습니다.\n", accountNumber);
     }
     
     mysql_stmt_close(stmt);

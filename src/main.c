@@ -1,3 +1,5 @@
+// main.c
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -34,14 +36,15 @@ int main() {
     }
 
     // 로그인 절차
-    if (!login(conn)) {
+    int userID = login(conn);
+    if (userID == -1) {
         printf("로그인 실패: 사용자 이름 또는 비밀번호가 올바르지 않습니다.\n");
         mysql_close(conn);
         exit(EXIT_FAILURE);
     }
 
-    // 로그인 성공 메시지는 login 함수 내부에서 출력됩니다.
-    // printf("로그인 성공!\n");
+    // 로그인 성공 시 사용자 ID를 사용할 수 있습니다.
+    // 예: printf("로그인 성공! 사용자 ID: %d\n", userID);
 
     int choice;
     while (1) {
@@ -52,7 +55,7 @@ int main() {
         printf("4. 계좌 개설\n");
         printf("5. 계좌 삭제\n");
         printf("6. 거래 내역 추가\n");
-        printf("7. 월별 거래 리포트 생성\n");
+        printf("7. 월간 고객 거래 리포트 생성\n");
         printf("8. 고객 요약 리포트 생성\n");
         printf("0. 종료\n");
         printf("선택: ");
@@ -79,7 +82,10 @@ int main() {
             case 5:
                 deleteAccount(conn);
                 break;
-            case 6: {
+            case 6:
+                addExpense(conn);
+                break;
+            case 7: {
                 int year, month;
                 printf("리포트를 생성할 연도와 월을 입력하세요 (예: 2024 11): ");
                 if (scanf("%d %d", &year, &month) != 2) {
@@ -91,7 +97,7 @@ int main() {
                 generateMonthlyTransactionReport(conn, year, month);
                 break;
             }
-            case 7:
+            case 8:
                 generateCustomerSummaryReport(conn);
                 break;
             case 0:
